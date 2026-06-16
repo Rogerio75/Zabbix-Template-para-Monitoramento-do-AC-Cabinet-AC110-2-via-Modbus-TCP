@@ -1,0 +1,1517 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+  - uuid: e49af024063147e69c223711651e1e30
+    name: Templates/BSR
+  templates:
+  - uuid: 1e6931f1c5b34ec3b4e6f706c4eaacdf
+    template: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+    name: Template AC Cabinet ZL-U09D2-SL JSON Melhorado
+    description: 'Template melhorado para ar-condicionado de gabinete AC110-2 / controlador ZL-U09D2-SL.
+
+      Usa item mestre JSON via external check e itens dependentes. O script esperado no diretório externalscripts é ar_condicionado_modbus, sem extensão Python.
+
+      Mapeamento validado com os dados reais coletados: refrigeração liga em reg[8]/tabela 009 e desliga em reg[9]/tabela 010.
+
+      Compatível com Zabbix 7.0.x. Ajuste as macros {$ARCOND.IP}, {$ARCOND.PORT}, {$ARCOND.UNIT} e {$ARCOND.TIMEOUT} no host.'
+    groups:
+    - name: Templates/BSR
+    items:
+    - uuid: 450df162cda048bd89807bfabf1ea58f
+      name: AC Cabinet JSON
+      type: EXTERNAL
+      key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      delay: 1m
+      history: 7d
+      value_type: TEXT
+      trends: '0'
+      description: Item mestre. Executa o script externo ar_condicionado_modbus e recebe um JSON com holding registers e coils do controlador ZL-U09D2-SL.
+      tags:
+      - tag: component
+        value: raw
+    - uuid: da34c3559edc4051a5bb7042d660dd54
+      name: AC Status da coleta
+      type: DEPENDENT
+      key: arcond.status
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.status
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: availability
+      value_type: TEXT
+      trends: '0'
+      description: 'status retornado pelo script: ok ou error.'
+    - uuid: 5ec0cc2c583f4eddbe86173ba9605acf
+      name: AC Temperatura interna
+      type: DEPENDENT
+      key: arcond.temp_interna
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.temp_interna
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 001: sensor de temperatura interna. Valor real x10.'
+    - uuid: f73e52610b8646d8b7ce98defd7719cf
+      name: AC Temperatura externa
+      type: DEPENDENT
+      key: arcond.temp_externa
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.temp_externa
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 002: sensor de temperatura externa. Valor real x10.'
+    - uuid: 63035cd7925d4c458bfe497e7300c8fe
+      name: AC Refrigeração liga em
+      type: DEPENDENT
+      key: arcond.refrigeracao_liga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.refrigeracao_liga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 009: ponto para ligar refrigeração. Valor real x10.'
+    - uuid: da537ecc33b14fae9d4ee67b761410d1
+      name: AC Refrigeração desliga em
+      type: DEPENDENT
+      key: arcond.refrigeracao_desliga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.refrigeracao_desliga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 010: ponto para desligar refrigeração. Valor real x10.'
+    - uuid: d40637157eb9487bab6d0fed0754933f
+      name: AC Aquecimento liga em
+      type: DEPENDENT
+      key: arcond.aquecimento_liga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.aquecimento_liga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 011: ponto para ligar aquecimento. Valor real x10.'
+    - uuid: 4e057dfc9da947ec94c2caf8c8a20d47
+      name: AC Aquecimento desliga em
+      type: DEPENDENT
+      key: arcond.aquecimento_desliga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.aquecimento_desliga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 012: ponto para desligar aquecimento. Valor real x10.'
+    - uuid: d46edf229c0344a19212ec7b6ec60857
+      name: AC Heat pipe liga em
+      type: DEPENDENT
+      key: arcond.heat_pipe_liga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.heat_pipe_liga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 013: ponto para ligar heat pipe. Valor real x10.'
+    - uuid: 1b0f8cbc9f1140ab9e8a715b4f0e2793
+      name: AC Heat pipe desliga em
+      type: DEPENDENT
+      key: arcond.heat_pipe_desliga_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.heat_pipe_desliga_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 014: ponto para desligar heat pipe. Valor real x10.'
+    - uuid: d09a70ca83b14faea2ac7d84b8bc4c73
+      name: AC Set alarme alta temperatura
+      type: DEPENDENT
+      key: arcond.alarme_alta_temp_set
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_alta_temp_set
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 015: ponto de alarme de alta temperatura. Valor real x10.'
+    - uuid: cd1734a64e984756a6d723607ee1227f
+      name: AC Set alarme baixa temperatura
+      type: DEPENDENT
+      key: arcond.alarme_baixa_temp_set
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_baixa_temp_set
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 016: ponto de alarme de baixa temperatura. Valor real x10.'
+    - uuid: 850c2404c07548b5a72a2cc7f094bb65
+      name: AC Calibração sensor temperatura 1
+      type: DEPENDENT
+      key: arcond.calibracao_sensor_temp_1
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.calibracao_sensor_temp_1
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 019: calibração do sensor de temperatura 1. Valor real x10.'
+    - uuid: 982e42a225784fd49df0b0e2fe82e581
+      name: AC Calibração sensor temperatura 2
+      type: DEPENDENT
+      key: arcond.calibracao_sensor_temp_2
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.calibracao_sensor_temp_2
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: temperature
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Holding register 020: calibração do sensor de temperatura 2. Valor real x10.'
+    - uuid: 3a8907537534453b937de47e85529dee
+      name: AC Umidade
+      type: DEPENDENT
+      key: arcond.umidade
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.umidade
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: humidity
+      value_type: FLOAT
+      units: '%RH'
+      trends: 365d
+      description: 'Holding register 006: umidade. Valor real x10.'
+    - uuid: 1003ae6d1dfa409085fa0277ba3d2120
+      name: AC Desumidificação liga em
+      type: DEPENDENT
+      key: arcond.desumidificacao_liga_umidade
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.desumidificacao_liga_umidade
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: humidity
+      value_type: FLOAT
+      units: '%RH'
+      trends: 365d
+      description: 'Holding register 017: ponto para ativar desumidificação. Valor real x10.'
+    - uuid: 8ee1ef9eb2324cf8b0c1ee077f0e1b0a
+      name: AC Desumidificação desliga em
+      type: DEPENDENT
+      key: arcond.desumidificacao_desliga_umidade
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.desumidificacao_desliga_umidade
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: humidity
+      value_type: FLOAT
+      units: '%RH'
+      trends: 365d
+      description: 'Holding register 018: ponto para parar desumidificação. Valor real x10.'
+    - uuid: b56db0b4ed174b74a779d1a06fe0edf6
+      name: AC Coils lidos com sucesso
+      type: DEPENDENT
+      key: arcond.coils_read_ok
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.coils_read_ok
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: availability
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC 0/1
+    - uuid: 502303083eb645c88d65de5fd3098a60
+      name: AC Sistema power raw
+      type: DEPENDENT
+      key: arcond.sistema_power_raw
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sistema_power_raw
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Power raw
+    - uuid: 1eb9e17b7a07462a9329f02aa6329fc4
+      name: AC Máquina ligada
+      type: DEPENDENT
+      key: arcond.maquina_ligada
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.maquina_ligada
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: 09ef5d8947164802a30f57e093fea584
+      name: AC Compressor ligado
+      type: DEPENDENT
+      key: arcond.compressor_ligado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.compressor_ligado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: afde6bc861cd4e4c87f20de421bc3c20
+      name: AC Aquecimento elétrico ligado
+      type: DEPENDENT
+      key: arcond.aquecimento_eletrico_ligado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.aquecimento_eletrico_ligado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: 2dc1c5175ae54a5bbbc02c0d4326d136
+      name: AC Ventilador interno ligado
+      type: DEPENDENT
+      key: arcond.ventilador_interno_ligado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.ventilador_interno_ligado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: 5073ab78af8f43d293c01a3ae0da6b8e
+      name: AC Ventilador externo ligado
+      type: DEPENDENT
+      key: arcond.ventilador_externo_ligado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.ventilador_externo_ligado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: 050a12cd40c24c57a37e268ae5f5958c
+      name: AC Hidrogênio ligado
+      type: DEPENDENT
+      key: arcond.hidrogenio_ligado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.hidrogenio_ligado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: status
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC On/Off
+    - uuid: 48a3ad8ec33c4ebab1103050f25b7ae8
+      name: AC Sensor temperatura 1 habilitado
+      type: DEPENDENT
+      key: arcond.sensor_temp_1_habilitado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_temp_1_habilitado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: ef40daa712c64f058bc9df289c49c9f2
+      name: AC Sensor temperatura 2 habilitado
+      type: DEPENDENT
+      key: arcond.sensor_temp_2_habilitado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_temp_2_habilitado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 95342e2feb7e43b1b315e0e5ccbb5156
+      name: AC Sensor umidade habilitado
+      type: DEPENDENT
+      key: arcond.sensor_umidade_habilitado
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_umidade_habilitado
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 290633df2720456ab1e7a3a3b18ad163
+      name: AC Modo compressor
+      type: DEPENDENT
+      key: arcond.modo_compressor
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_compressor
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Mode
+    - uuid: 8dad4e358a0f440bbbff5bd65b06b59d
+      name: AC Modo aquecimento elétrico
+      type: DEPENDENT
+      key: arcond.modo_aquecimento_eletrico
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_aquecimento_eletrico
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Mode
+    - uuid: 85821c317f1044a88b36d4b94d58bbbf
+      name: AC Modo ventilador interno
+      type: DEPENDENT
+      key: arcond.modo_ventilador_interno
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_ventilador_interno
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Mode
+    - uuid: d41d672f2f9f4f9a8ad0a70d1dc47f68
+      name: AC Modo ventilador externo
+      type: DEPENDENT
+      key: arcond.modo_ventilador_externo
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_ventilador_externo
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Mode
+    - uuid: eb269be059a3431282a9539dcd6cb59a
+      name: AC Configuração alarme pressão
+      type: DEPENDENT
+      key: arcond.pressao_alarme_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.pressao_alarme_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Pressure alarm mode
+    - uuid: 87f1d41ee1e949008e94b3aae61b8648
+      name: AC Config falha sensor temperatura 1
+      type: DEPENDENT
+      key: arcond.falha_sensor_temp_1_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_sensor_temp_1_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: c4f750e3c9ac470391f064d6bc96ef30
+      name: AC Config falha sensor temperatura 2
+      type: DEPENDENT
+      key: arcond.falha_sensor_temp_2_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_sensor_temp_2_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 96ea812504f24fc6a6aeef00a06937a6
+      name: AC Config falha sensor umidade
+      type: DEPENDENT
+      key: arcond.falha_sensor_umidade_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_sensor_umidade_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: fb16e05c5d5346b99bf19432ec48a84f
+      name: AC Config alarme alta temperatura
+      type: DEPENDENT
+      key: arcond.falha_alarme_alta_temp_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_alarme_alta_temp_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 236700ef307d4726a0589406a8125468
+      name: AC Config alarme baixa temperatura
+      type: DEPENDENT
+      key: arcond.falha_alarme_baixa_temp_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_alarme_baixa_temp_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 8b3e76bdc5a14af4af54258396834d09
+      name: AC Config alarme pressão
+      type: DEPENDENT
+      key: arcond.falha_alarme_pressao_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_alarme_pressao_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 1ab5712f6a474b3d87ef9103c72ccfb3
+      name: AC Config alarme congelamento
+      type: DEPENDENT
+      key: arcond.falha_alarme_congelamento_config
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.falha_alarme_congelamento_config
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      trends: 365d
+      description: Valor decodificado do JSON retornado pelo script.
+      valuemap:
+        name: AC Enabled/Disabled
+    - uuid: 17acdc365236473b90948caab18de3f2
+      name: AC Alarme ativo
+      type: DEPENDENT
+      key: arcond.alarme_ativo
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_ativo
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: 6b6befef3aaa42d29cd59f8e2ee57371
+      name: AC Alarme alta temperatura
+      type: DEPENDENT
+      key: arcond.alarme_alta_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_alta_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: 93cccca9b92d434bbaae1831f097184a
+      name: AC Alarme baixa temperatura
+      type: DEPENDENT
+      key: arcond.alarme_baixa_temp
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_baixa_temp
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: aab86292a5624d98bc937002bcfcaf74
+      name: AC Alarme pressão compressor
+      type: DEPENDENT
+      key: arcond.alarme_pressao_compressor
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_pressao_compressor
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: a361a934f1dd439b86c95edf43205514
+      name: AC Alarme congelamento
+      type: DEPENDENT
+      key: arcond.alarme_congelamento
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_congelamento
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: f97bed55028e4d36b99480b73cb4053f
+      name: AC Falha sensor RT1
+      type: DEPENDENT
+      key: arcond.alarme_falha_sensor_rt1
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_falha_sensor_rt1
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: 954a8be5b15248038b2886dbce929f90
+      name: AC Falha sensor RT2
+      type: DEPENDENT
+      key: arcond.alarme_falha_sensor_rt2
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_falha_sensor_rt2
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: 656dbad97b5a43d09cf05034deb8cacf
+      name: AC Falha sensor umidade
+      type: DEPENDENT
+      key: arcond.alarme_falha_sensor_umidade
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_falha_sensor_umidade
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: d7d9d6884af94c7dace83d63410e1237
+      name: AC Erro EEPROM
+      type: DEPENDENT
+      key: arcond.alarme_erro_eeprom
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alarme_erro_eeprom
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: alarm
+      trends: 365d
+      description: 'Coil do controlador ZL-U09D2-SL: 1 indica alarme/ativo; 0 indica normal.'
+      valuemap:
+        name: AC Alarm state
+    - uuid: ad9b06c7838e45c6869a8094c97cb22c
+      name: AC Sistema power texto
+      type: DEPENDENT
+      key: arcond.sistema_power_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sistema_power_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: adc0b6f96bab4935b7f6f411465d2e33
+      name: AC Sensor temperatura 1 habilitado texto
+      type: DEPENDENT
+      key: arcond.sensor_temp_1_habilitado_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_temp_1_habilitado_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: ef618ba1f622494a8ff414eb276d8842
+      name: AC Sensor temperatura 2 habilitado texto
+      type: DEPENDENT
+      key: arcond.sensor_temp_2_habilitado_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_temp_2_habilitado_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: 5239d26bf55f47e390d872c47d9ef371
+      name: AC Sensor umidade habilitado texto
+      type: DEPENDENT
+      key: arcond.sensor_umidade_habilitado_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sensor_umidade_habilitado_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: c9f01ba2735a44a095265661a1284110
+      name: AC Modo compressor texto
+      type: DEPENDENT
+      key: arcond.modo_compressor_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_compressor_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: eb0df3f0e3324316b7ff2a6c6cf49f12
+      name: AC Modo aquecimento elétrico texto
+      type: DEPENDENT
+      key: arcond.modo_aquecimento_eletrico_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_aquecimento_eletrico_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: 55a502c447b1454497951bda11fde109
+      name: AC Modo ventilador interno texto
+      type: DEPENDENT
+      key: arcond.modo_ventilador_interno_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_ventilador_interno_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: dd1df55e1712400abf698a81f1b354e0
+      name: AC Modo ventilador externo texto
+      type: DEPENDENT
+      key: arcond.modo_ventilador_externo_texto
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.modo_ventilador_externo_texto
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: configuration
+      value_type: TEXT
+      trends: '0'
+    - uuid: c3ae68006d4e4c159efa33727edf577b
+      name: AC Limite superior provável
+      type: DEPENDENT
+      key: arcond.limite_superior_provavel
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.limite_superior_provavel
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: compatibility
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Alias de compatibilidade: mesmo valor de refrigeracao_liga_temp.'
+    - uuid: dbf212a137a8443d838a97627fbb2107
+      name: AC Setpoint provável
+      type: DEPENDENT
+      key: arcond.setpoint_provavel
+      delay: '0'
+      history: 30d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.setpoint_provavel
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: compatibility
+      value_type: FLOAT
+      units: °C
+      trends: 365d
+      description: 'Alias de compatibilidade: mesmo valor de refrigeracao_desliga_temp.'
+    - uuid: e071504e6fd64c7cafe42294c9458468
+      name: AC Raw registers
+      type: DEPENDENT
+      key: arcond.raw_registers
+      delay: '0'
+      history: 7d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.raw_registers
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: raw
+      value_type: TEXT
+      trends: '0'
+      description: Lista bruta dos 36 holding registers lidos.
+    - uuid: c520574f6b8648a8b9d15c59fb064aaa
+      name: AC Raw coils
+      type: DEPENDENT
+      key: arcond.raw_coils
+      delay: '0'
+      history: 7d
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.raw_coils
+      master_item:
+        key: ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"]
+      tags:
+      - tag: component
+        value: raw
+      value_type: TEXT
+      trends: '0'
+      description: Lista bruta dos 32 coils lidos.
+    macros:
+    - macro: '{$ARCOND.IP}'
+      value: 192.168.20.231
+      description: IP do controlador Modbus TCP.
+    - macro: '{$ARCOND.PORT}'
+      value: '502'
+      description: Porta Modbus TCP.
+    - macro: '{$ARCOND.UNIT}'
+      value: '1'
+      description: Unit ID / Slave ID Modbus.
+    - macro: '{$ARCOND.TIMEOUT}'
+      value: '3'
+      description: Timeout do script externo em segundos.
+    - macro: '{$ARCOND.NODATA}'
+      value: 5m
+      description: Tempo sem dados para acionar trigger de indisponibilidade.
+    - macro: '{$ARCOND.TEMP.WARN}'
+      value: '43'
+      description: Temperatura de aviso. Default igual ao ponto de liga refrigeração visto em campo.
+    - macro: '{$ARCOND.TEMP.WARN.TIME}'
+      value: 5m
+      description: Persistência para aviso de temperatura.
+    - macro: '{$ARCOND.TEMP.HIGH}'
+      value: '50'
+      description: Temperatura alta antes do alarme crítico do controlador.
+    - macro: '{$ARCOND.TEMP.HIGH.TIME}'
+      value: 5m
+      description: Persistência para temperatura alta.
+    - macro: '{$ARCOND.COOLING.START.MARGIN}'
+      value: '0.5'
+      description: Margem acima do ponto de liga refrigeração para detectar compressor não acionando.
+    - macro: '{$ARCOND.COOLING.STOP.MARGIN}'
+      value: '1'
+      description: Margem acima do ponto de desliga refrigeração para detectar refrigeração ineficiente.
+    - macro: '{$ARCOND.COOLING.CHECK.TIME}'
+      value: 10m
+      description: Janela para avaliar refrigeração ineficiente.
+    - macro: '{$ARCOND.ALERT.MACHINE_OFF}'
+      value: '1'
+      description: 1 alerta se máquina/sistema estiver desligado; 0 desativa esse alerta.
+    - macro: '{$ARCOND.ALERT.FORCE_MODE}'
+      value: '0'
+      description: 1 alerta quando algum modo estiver forçado; 0 não alerta. O default 0 evita ruído quando ventilador interno é propositalmente force_on.
+    valuemaps:
+    - uuid: d2f724211fcd431aa9e7b76797b442ac
+      name: AC On/Off
+      mappings:
+      - value: '0'
+        newvalue: Desligado
+      - value: '1'
+        newvalue: Ligado
+    - uuid: a4f18be203f74d5a915a4f37e3b82d11
+      name: AC Alarm state
+      mappings:
+      - value: '0'
+        newvalue: Normal
+      - value: '1'
+        newvalue: Alarme
+    - uuid: 49e887ac53394f4d963d81ba9abcb27e
+      name: AC Enabled/Disabled
+      mappings:
+      - value: '0'
+        newvalue: Desabilitado
+      - value: '1'
+        newvalue: Habilitado
+    - uuid: 2288c7ce8dd84325b64ad5447015400c
+      name: AC Mode
+      mappings:
+      - value: '0'
+        newvalue: Controle normal
+      - value: '1'
+        newvalue: Forçado ligado
+      - value: '2'
+        newvalue: Forçado desligado
+    - uuid: 26f9287e02c646889e15fcb89c8d58ba
+      name: AC Power raw
+      mappings:
+      - value: '0'
+        newvalue: Off / 0x0000
+      - value: '65280'
+        newvalue: On / 0xFF00
+    - uuid: 201a2ed863c24145b980491d29121462
+      name: AC 0/1
+      mappings:
+      - value: '0'
+        newvalue: Não
+      - value: '1'
+        newvalue: Sim
+    - uuid: f44cc85d79664012b4175aefb9b746ac
+      name: AC Pressure alarm mode
+      mappings:
+      - value: '0'
+        newvalue: Desabilitado
+      - value: '1'
+        newvalue: Sempre ligado
+      - value: '2'
+        newvalue: Sempre desligado
+  triggers:
+  - uuid: c837b5dc574f4a7dafaf522974d393f8
+    expression: nodata(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/ar_condicionado_modbus["--ip","{$ARCOND.IP}","--port","{$ARCOND.PORT}","--unit","{$ARCOND.UNIT}","--timeout","{$ARCOND.TIMEOUT}"],{$ARCOND.NODATA})=1
+    name: 'AC Cabinet: Sem dados do ar-condicionado'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+    description: O item mestre não recebeu dados dentro da janela configurada.
+  - uuid: 7e11fe5e8536485c84834784a6a78f75
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.status)<>"ok"
+    name: 'AC Cabinet: Erro na coleta do script'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+    description: O script retornou status diferente de ok.
+  - uuid: f46cd93b621a46d8aeff246bac4549d9
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.coils_read_ok)=0
+    name: 'AC Cabinet: Falha na leitura dos coils'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+    description: Holding registers foram lidos, mas a leitura dos coils falhou ou foi desabilitada.
+  - uuid: 2e518bb529d6421a8d48ac330cbaf34a
+    expression: min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.temp_interna,{$ARCOND.TEMP.WARN.TIME})>{$ARCOND.TEMP.WARN}
+    name: 'AC Cabinet: Temperatura interna em aviso'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: temperature
+    description: Temperatura permaneceu acima do valor de aviso.
+  - uuid: e1090ae9f4d243c69ed16a98ffa1636e
+    expression: min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.temp_interna,{$ARCOND.TEMP.HIGH.TIME})>{$ARCOND.TEMP.HIGH}
+    name: 'AC Cabinet: Temperatura interna alta'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: temperature
+    description: Temperatura permaneceu acima do limite alto.
+  - uuid: d43695e64f4e4f5c8f8759a1c1b0fff2
+    expression: min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.temp_interna,3m)>last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_alta_temp_set) and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_alta_temp_set)>0
+    name: 'AC Cabinet: Temperatura acima do set de alarme do controlador'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: temperature
+    description: A temperatura interna ultrapassou o ponto de alarme configurado no controlador.
+  - uuid: ea385ea0ae13445da6437f7ba54d3b0c
+    expression: min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.temp_interna,5m)>(last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.refrigeracao_liga_temp)+{$ARCOND.COOLING.START.MARGIN}) and max(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.compressor_ligado,5m)=0 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.maquina_ligada)=1
+    name: 'AC Cabinet: Compressor não acionou acima do ponto de refrigeração'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: temperature
+    description: A temperatura ficou acima do ponto de liga refrigeração, mas o coil do compressor permaneceu desligado.
+  - uuid: 33dd1da776d54d278a83c13888edfbc4
+    expression: min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.compressor_ligado,{$ARCOND.COOLING.CHECK.TIME})=1 and min(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.temp_interna,{$ARCOND.COOLING.CHECK.TIME})>(last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.refrigeracao_desliga_temp)+{$ARCOND.COOLING.STOP.MARGIN})
+    name: 'AC Cabinet: Refrigeração possivelmente ineficiente'
+    priority: AVERAGE
+    tags:
+    - tag: scope
+      value: temperature
+    description: Compressor ficou ligado durante a janela de checagem e a temperatura não atingiu a faixa de desligamento.
+  - uuid: 6601bf02f201423ca3e385892576c194
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_ativo)=1
+    name: 'AC Cabinet: Alarme ativo no controlador'
+    priority: AVERAGE
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 775fa320cde744b99cfe8dcd0818c9fc
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_alta_temp)=1
+    name: 'AC Cabinet: Alarme de alta temperatura no controlador'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: temperature
+  - uuid: 2034dcd804f64e70a854ec3b5acd8516
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_baixa_temp)=1
+    name: 'AC Cabinet: Alarme de baixa temperatura no controlador'
+    priority: AVERAGE
+    tags:
+    - tag: scope
+      value: temperature
+  - uuid: 32a5c721d08a4453942258484e5749ea
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_pressao_compressor)=1
+    name: 'AC Cabinet: Alarme de pressão do compressor'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 5b27c7209be341519f3e24ebaa4e327a
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_congelamento)=1
+    name: 'AC Cabinet: Alarme de congelamento'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: e73a4884eef2499c94afa6f708ac36dc
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_falha_sensor_rt1)=1
+    name: 'AC Cabinet: Falha sensor RT1'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 7176ed904e4940478442455b07d83dbf
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_falha_sensor_rt2)=1
+    name: 'AC Cabinet: Falha sensor RT2'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 9ddda0c615cc47bcab7013788fdd5f86
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_falha_sensor_umidade)=1
+    name: 'AC Cabinet: Falha sensor de umidade'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: e42a80b213db455bb914f89dab3412cd
+    expression: last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.alarme_erro_eeprom)=1
+    name: 'AC Cabinet: Erro EEPROM'
+    priority: HIGH
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 85d7bcb53d8b40af8957b2a33c14b63b
+    expression: '{$ARCOND.ALERT.MACHINE_OFF}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.maquina_ligada)=0'
+    name: 'AC Cabinet: Máquina desligada'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 0c99790998664ffa8548bee471fd9f0a
+    expression: '{$ARCOND.ALERT.MACHINE_OFF}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.sistema_power_raw)=0'
+    name: 'AC Cabinet: Sistema power desligado'
+    priority: WARNING
+    tags:
+    - tag: scope
+      value: availability
+  - uuid: 0391457c9de94522ac657fdf1ee4ec97
+    expression: '{$ARCOND.ALERT.FORCE_MODE}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.modo_compressor)<>0'
+    name: 'AC Cabinet: Compressor em modo forçado'
+    priority: INFO
+    tags:
+    - tag: scope
+      value: configuration
+  - uuid: 6e4d7fdabcec4fc7948ae0ba1d635a33
+    expression: '{$ARCOND.ALERT.FORCE_MODE}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.modo_aquecimento_eletrico)<>0'
+    name: 'AC Cabinet: Aquecimento elétrico em modo forçado'
+    priority: INFO
+    tags:
+    - tag: scope
+      value: configuration
+  - uuid: 692aee8646354812a4571310686b0022
+    expression: '{$ARCOND.ALERT.FORCE_MODE}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.modo_ventilador_interno)<>0'
+    name: 'AC Cabinet: Ventilador interno em modo forçado'
+    priority: INFO
+    tags:
+    - tag: scope
+      value: configuration
+  - uuid: aef0657f69ec46b7aaa183e893b6084d
+    expression: '{$ARCOND.ALERT.FORCE_MODE}=1 and last(/Template_AC_Cabinet_ZL_U09D2_SL_JSON/arcond.modo_ventilador_externo)<>0'
+    name: 'AC Cabinet: Ventilador externo em modo forçado'
+    priority: INFO
+    tags:
+    - tag: scope
+      value: configuration
+  graphs:
+  - uuid: 96fbdc7b356741c49d1f9c3d724cb0bf
+    name: AC Cabinet - Temperaturas e setpoints
+    graph_items:
+    - color: 199C0D
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.temp_interna
+    - color: 2774A4
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.refrigeracao_liga_temp
+      sortorder: '1'
+    - color: F63100
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.refrigeracao_desliga_temp
+      sortorder: '2'
+    - color: F7941D
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_alta_temp_set
+      sortorder: '3'
+    - color: 6C59DC
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_baixa_temp_set
+      sortorder: '4'
+  - uuid: d22c6c3407fd46d89f057da30303acaa
+    name: AC Cabinet - Estados
+    graph_items:
+    - color: 1A7C11
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.maquina_ligada
+      calc_fnc: ALL
+    - color: 2774A4
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.compressor_ligado
+      sortorder: '1'
+      calc_fnc: ALL
+    - color: F7941D
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.ventilador_interno_ligado
+      sortorder: '2'
+      calc_fnc: ALL
+    - color: F63100
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.ventilador_externo_ligado
+      sortorder: '3'
+      calc_fnc: ALL
+    - color: 6C59DC
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.aquecimento_eletrico_ligado
+      sortorder: '4'
+      calc_fnc: ALL
+    - color: C7A72D
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.hidrogenio_ligado
+      sortorder: '5'
+      calc_fnc: ALL
+  - uuid: 42753100e2974c0baf8901d22c2cc266
+    name: AC Cabinet - Alarmes
+    graph_items:
+    - color: F63100
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_ativo
+      calc_fnc: ALL
+    - color: F7941D
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_alta_temp
+      sortorder: '1'
+      calc_fnc: ALL
+    - color: 2774A4
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_baixa_temp
+      sortorder: '2'
+      calc_fnc: ALL
+    - color: 6C59DC
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_pressao_compressor
+      sortorder: '3'
+      calc_fnc: ALL
+    - color: 1A7C11
+      item:
+        host: Template_AC_Cabinet_ZL_U09D2_SL_JSON
+        key: arcond.alarme_congelamento
+      sortorder: '4'
+      calc_fnc: ALL
